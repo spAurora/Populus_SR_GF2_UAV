@@ -1,0 +1,7 @@
+click
+pyyaml
+tensorboard
+tqdm
+lpips
+piq
+torchdiffeq
