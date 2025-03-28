@@ -16,6 +16,9 @@ from .toy import ToyDataset
 from .gupopulus import GUPOPULUSDataset
 from .gupopulus_test import GUPOPULUSTestDataset
 
+from .parcel_s2 import PARCEL_S2Dataset
+from .parcel_s2_test import PARCEL_S2TestDataset
+
 
 def get_train_dataloader(options):
     if options.train.dataset == "mnist":
@@ -30,10 +33,16 @@ def get_train_dataloader(options):
             random_crop_size=options.train.train_image_size,
         )
     elif options.train.dataset == "gupopulus":
-        print(vars(options.train))
         dataset = GUPOPULUSDataset(
             options.train.data_dir,
             2,
+            True,
+            random_crop_size=options.train.train_image_size,
+        )
+    elif options.train.dataset == "parcel_s2":
+        dataset = PARCEL_S2Dataset(
+            options.train.data_dir,
+            1,
             True,
             random_crop_size=options.train.train_image_size,
         )
@@ -98,7 +107,16 @@ def get_val_dataloader(options):
             random_crop_size=options.train.train_image_size,
             deterministic=True,
             repeat=2,
-        )        
+        )
+    elif options.train.dataset == "parcel_s2":
+        dataset = PARCEL_S2Dataset(
+            options.train.data_dir,
+            1,
+            False,
+            random_crop_size=options.train.train_image_size,
+            deterministic=True,
+            repeat=2,
+        )           
     elif options.train.dataset == "celeba":
         dataset = CelebADataset(options.train.data_dir, 8, "val")
     elif options.train.dataset == "ffhq":
@@ -145,6 +163,8 @@ def get_test_dataset(options):
         dataset = DIV2kTestDataset(options.train.data_dir)
     elif options.train.dataset == "gupopulus":
         dataset = GUPOPULUSTestDataset(options.train.data_dir)
+    elif options.train.dataset == "parcel_s2":
+        dataset = PARCEL_S2TestDataset(options.train.data_dir)
     elif options.train.dataset == "celeba":
         dataset = CelebADataset(options.train.data_dir, 8, "test")
     elif options.train.dataset == "ffhq":
