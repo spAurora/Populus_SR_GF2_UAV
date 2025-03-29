@@ -33,7 +33,15 @@ class ECDP(ImageSizeMixin, nn.Module):
         if options.train.dataset == "gupopulus":
             t = torch.load(
                 "pretrained-rrdbnet-gupopulus.pt", map_location=torch.device("cpu")
-            )            
+            )
+        if options.train.dataset == "parcel_s2":
+            t = torch.load(
+                "pretrained-rrdbnet-parcel_s2.pt", map_location=torch.device("cpu")
+            )
+        if options.train.dataset == "parcel_gf2":
+            t = torch.load(
+                "pretrained-rrdbnet-parcel_gf2.pt", map_location=torch.device("cpu")
+            )              
         elif options.train.dataset == "celeba":
             t = torch.load(
                 "pretrained-rrdbnet-celeba.pt", map_location=torch.device("cpu")

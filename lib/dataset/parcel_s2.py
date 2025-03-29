@@ -21,8 +21,8 @@ class PARCEL_S2Dataset(ImageFolders):
             # print('random crop size:', random_crop_size) # wHy 241008
         else:
             paths = [
-                data_dir / "parcel_s2_2" / "parcel_s2_valid_HR",
-                data_dir / "parcel_s2_2" / "parcel_s2_valid_LR",
+                data_dir / "parcel_s2" / "parcel_s2_valid_HR",
+                data_dir / "parcel_s2" / "parcel_s2_valid_LR",
             ]
 
         print('downscale_factor:', downscale_factor)

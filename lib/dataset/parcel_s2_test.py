@@ -14,7 +14,7 @@ class PARCEL_S2TestDataset(Dataset):
             data_dir (str or Path): Root directory containing the image folders.
         """
         self.hr_dir = Path(data_dir) / "parcel_s2" / "parcel_s2_valid_HR"
-        self.lr_dir = Path(data_dir) / "parcel_s2_2" / "parcel_s2_valid_LR"
+        self.lr_dir = Path(data_dir) / "parcel_s2" / "parcel_s2_valid_LR"
         
         # 获取 HR 和 LR 文件夹下所有的 PNG 文件名，确保按文件名排序
         self.hr_images = sorted([f for f in os.listdir(self.hr_dir) if f.endswith('.tif')])
@@ -22,7 +22,7 @@ class PARCEL_S2TestDataset(Dataset):
 
         self.lr_images = []
         for hr_image in self.hr_images:
-            self.lr_images.append(hr_image[:-4]+'x'+os.path.split(self.lr_dir)[-1][-1]+'.tif')
+            self.lr_images.append(hr_image[:-4]+'x1'+'.tif')
 
         print(self.hr_images)
         print(self.lr_images)

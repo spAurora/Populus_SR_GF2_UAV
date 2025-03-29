@@ -494,7 +494,7 @@ class Trainer:
                         self.options.train.result_dir
                         / "images"
                         / f"epoch{epoch}"
-                        / image_name
+                        / image_name[0] # wHy 这里可能是列表
                     )
                     save_image(gen_diff[idx - idx_base], save_path)
                 idx_base += image.shape[0]
