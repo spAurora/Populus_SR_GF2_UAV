@@ -27,7 +27,7 @@ train:
 
   dataset: parcel_gf2
   epochs: 300
-  batch_size: 8
+  batch_size: 6
   train_image_size: 120
   lr: 1.0e-4
   lr_decay_factor: 0.5
@@ -36,7 +36,7 @@ train:
   clip_grad_value: 10
   param_running_avg: 1000
 
-  visualize_batch_size: 8
+  visualize_batch_size: 6
   test_interval: 50
   val_images_interval: 50
   checkpoint_backup_interval: 50

@@ -7,10 +7,10 @@ from lib.commands import ALL_COMMANDS
 
 def main():
     cli = click.Group(commands=ALL_COMMANDS)
-    cli(['train', '--config', 'conf/rrdbnet-parcel_gf2.yaml', 'parcel_gf2_250329'])
-    # cli(['train', '--config', 'conf/ecdp-parcel_s2-train.yaml', 'parcel_s2_250329'])
+    # cli(['train', '--config', 'conf/rrdbnet-parcel_gf2.yaml', 'parcel_gf2_250329'])
+    # cli(['train', '--config', 'conf/ecdp-parcel_gf2-train.yaml', 'parcel_gf2_250329'])
     # cli(['train', '--config', 'conf/ecdp-gupopulus-finetune.yaml', 'gupopulus_250119'])
-    # cli(['test', '20250329-011812-parcel_s2_250329', '--save-images'])
+    cli(['test', '20250329-011812-parcel_s2_250329', '--save-images'])
     cli.main()
 
 
