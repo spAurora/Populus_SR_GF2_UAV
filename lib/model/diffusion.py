@@ -18,12 +18,12 @@ class Diffusion(nn.Module):
         self.b_min = 0.1
         self.b_max = 20
         ts = torch.arange(0, t_max + 1) / t_max
-        alpha_bars_ext = self.t_to_aa(ts)
+        alpha_bars_ext = self.t_to_aa(ts) # 理论上的完整噪声计划​（包含 t=0 的边界点）
         alphas = alpha_bars_ext[1:] / alpha_bars_ext[:-1]
         betas = 1 - alphas
         self.register_buffer("betas", betas)
         self.register_buffer("alphas", alphas)
-        self.register_buffer("alpha_bars", alpha_bars_ext[1:])
+        self.register_buffer("alpha_bars", alpha_bars_ext[1:]) # 实际使用的噪声计划​（从 t=1 开始，对齐离散时间步）
 
         self.network = network
 
@@ -112,17 +112,16 @@ class Diffusion(nn.Module):
         cond, diff_mean, diff_scale = cond
         if self.use_ode:
             x = odeint(
-                lambda t, net_in: self.ode_func(net_in, t, cond),
-                x,
-                torch.tensor([len(self.alpha_bars), 0.1], device=x.device),
-                atol=1e-3,
-                rtol=1e-3,
+                lambda t, net_in: self.ode_func(net_in, t, cond), # ODE系统的导数函数，形式必须为 f(t, x)
+                x, # # 初始状态
+                torch.tensor([len(self.alpha_bars), 250], device=x.device), # 时间范围 [t_start, t_end]
+                atol=1e-3, # 绝对误差容限
+                rtol=1e-3, # 相对误差容限
                 options={"jump_t": torch.tensor([0.1], device=x.device)},
                 adjoint_params=self.parameters(),
             )[1]
         else:
             end_step = 0 if self.ddim else 5
-            print(end_step)
             for t in range(self.gen_steps - 1, end_step - 1, -1):
                 if t == self.gen_steps - 1:
                     x = next_step(x, cond, t, make_rand_like(x))
@@ -137,24 +136,28 @@ class Diffusion(nn.Module):
     def ode_func(self, net_in, t, cond):
         if self.gen_verbose:
             print("eval at", t)
-        sampled_aa = self.t_to_aa(t / len(self.alpha_bars))
+        # 1. 计算当前时间t对应的噪声强度
+        sampled_aa = self.t_to_aa(t / len(self.alpha_bars)) # 归一化，与离散版本统一
         sampled_beta = self.b_min + (self.b_max - self.b_min) * (
             t / len(self.alpha_bars)
         )
+         # 2. 神经网络预测去噪方向
         network_pred_eps_x0 = self.network(net_in, t[None], cond)
         network_pred_eps, network_pred_x0 = network_pred_eps_x0.split(
             network_pred_eps_x0.shape[1] // 2, dim=1
         )
+        # 3. 混合预测结果
         network_pred = (
             network_pred_eps * sampled_aa.sqrt()
             - network_pred_x0 * (1 - sampled_aa).sqrt()
         )
         eps_pred = net_in * (1 - sampled_aa).sqrt() + network_pred * sampled_aa.sqrt()
+        # 4. 计算ODE的导数dx/dt
         value = (
             -0.5 * sampled_beta * net_in
             + 0.5 * sampled_beta * eps_pred / (1 - sampled_aa).sqrt()
         )
-        return value / len(self.alpha_bars)
+        return value / len(self.alpha_bars) # 时间缩放
 
     def get_inject_noise_var(self, t):
         if t == 0:
