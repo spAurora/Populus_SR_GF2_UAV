@@ -40,6 +40,7 @@ class Diffusion(nn.Module):
 
     def normalize(self, x, *, cond):
         cond, diff_mean, diff_scale = cond
+        # print(cond.shape) # 实际上只有rrdbnet提取的特征图被利用
         if self.training:
             ts = (
                 torch.rand(x.shape[0], device=x.device) * (len(self.alpha_bars) - 0) + 0
@@ -121,6 +122,7 @@ class Diffusion(nn.Module):
             )[1]
         else:
             end_step = 0 if self.ddim else 5
+            print(end_step)
             for t in range(self.gen_steps - 1, end_step - 1, -1):
                 if t == self.gen_steps - 1:
                     x = next_step(x, cond, t, make_rand_like(x))

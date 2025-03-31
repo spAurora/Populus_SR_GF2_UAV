@@ -6,7 +6,10 @@ from .diffusion import Diffusion
 from .utils import ImageSizeMixin
 from .rrdbnet import RRDBNet
 from .unet import UNet
-
+import numpy as np
+from PIL import Image
+import os
+from osgeo import gdal
 
 class ECDP(ImageSizeMixin, nn.Module):
     def __init__(self, options):
@@ -67,11 +70,52 @@ class ECDP(ImageSizeMixin, nn.Module):
         else:
             raise ValueError("invalid forward mode")
 
+    def vis_cond(self, cond):
+        output_dir = r'D:\github\Populus_SR_GF2_UAV\results\vis'
+        # 确保cond是CPU上的张量并转为numpy数组
+        cond_np = cond.detach().cpu().numpy()  # [6, 256, 120, 120]
+        
+        # 创建保存目录
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 获取图像尺寸
+        height, width = cond_np.shape[2], cond_np.shape[3]
+        
+        # 为每个batch创建多通道图像
+        for b in range(cond_np.shape[0]):
+            # 准备输出文件名
+            output_path = os.path.join(output_dir, f"batch_{b}_multichannel.tif")
+            
+            # 创建多通道TIFF文件
+            driver = gdal.GetDriverByName('GTiff')
+            dataset = driver.Create(
+                output_path,
+                width,
+                height,
+                256,  # 256个通道
+                gdal.GDT_Float32  # 使用浮点型保存原始值
+            )
+            
+            # 写入每个通道的数据
+            for c in range(cond_np.shape[1]):
+                band = dataset.GetRasterBand(c+1)  # GDAL波段索引从1开始
+                band.WriteArray(cond_np[b, c])
+                band.FlushCache()
+            
+            # 关闭数据集
+            dataset = None
+        
+        exit(-1) # 可视化模式
+
     def _calculate_loss(self, x, *, cond):
+        # print(cond.shape)
         lr_feats = self.lr_feats(cond)
+        # self.vis_cond(lr_feats) # 特征图可视化
+        # print(lr_feats.shape)
         cond_scaled = FV.resize(
             cond, (x.shape[2], x.shape[3]), interpolation=FV.InterpolationMode.BICUBIC
         )
+        # print(cond_scaled.shape)
         scale = 5
         x = x - cond_scaled
         x = x * scale
