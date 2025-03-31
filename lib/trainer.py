@@ -59,6 +59,8 @@ class Trainer:
             self.device = torch.device("cpu")
 
         self.model = make_model(self.options)
+        print('model inited')
+
         if self.options.train.finetune_pretrained_model is not None:
             checkpoint = torch.load(
                 self.options.train.finetune_pretrained_model,
@@ -460,9 +462,10 @@ class Trainer:
         ):
             sample = sample_to_device(sample, self.device)
 
-            image = sample["image"]
+            image = sample["image"] # 读取高分图片仅用来计算精度指标
             image_lr = sample["image_lr"]
             image_name = sample["image_name_hr"]
+            print('image, image_lr, image_name', image, image_lr, image_name)
 
             with inner_model.with_image_size(
                 (
@@ -510,6 +513,76 @@ class Trainer:
             weight=total_count,
             print_to_stderr=True,
         )
+
+    @torch.no_grad()
+    def predict(self, epoch=None, save_images=False):
+        if epoch is None:
+            assert self.start_epoch > 0
+            epoch = self.start_epoch - 1
+
+        if (
+            hasattr(self.options.train, "param_running_avg")
+            and self.options.train.param_running_avg is not None
+        ):
+            my_model = self.model_avg
+        else:
+            my_model = self.model
+        my_model.eval()
+
+        total_psnr = 0
+        total_ssim = 0
+        total_lpips = 0
+        total_count = 0
+
+        lpips = LPIPS().to(self.device)
+
+        inner_model = my_model
+        if self.options.train.distributed:
+            inner_model = inner_model.module
+        inner_model.model.diffusion.use_ode = True
+
+        loader = DataLoader(
+            self.test_dataset,
+            batch_size=self.options.train.test_batch_size,
+            shuffle=False,
+            num_workers=4,
+            pin_memory=False,
+        )
+
+        idx_base = 0
+        for sample in tqdm(
+            loader,
+            desc=f"epoch {epoch} test",
+        ):
+            sample = sample_to_device(sample, self.device)
+
+            image_lr = sample["image_lr"]
+            image_lr_name = sample["image_name_lr"][0]
+
+            with inner_model.with_image_size(
+                (
+                    image_lr.shape[2] * self.options.model.sr_factor,
+                    image_lr.shape[3] * self.options.model.sr_factor,
+                )
+            ):
+                gen_diff = inner_model(image_lr, t=1.0, mode="random-generate")
+                # gen_diff = gen_diff[:, :, : image.shape[2], : image.shape[3]]
+                # image = image[:,:,: gen_diff.shape[2], : gen_diff.shape[3]] # wHy241228 部分gen的图片大小会小于img_hr
+
+
+            print('gen, img_lr:', gen_diff.shape, image_lr.shape)
+
+            if save_images:
+                for idx in range(idx_base, idx_base + image_lr.shape[0]):
+                    save_path = (
+                        self.options.train.result_dir
+                        / "images"
+                        / f"epoch{epoch}"
+                        / image_lr_name
+                    )
+                    save_image(gen_diff[idx - idx_base], save_path)
+                idx_base += image_lr.shape[0]
+
 
     def save_state(self, epoch):
         if self.rank == 0:

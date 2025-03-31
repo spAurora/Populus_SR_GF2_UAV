@@ -59,8 +59,8 @@ class ImageFolders(Dataset):
                 if file.is_file() and str(file).lower().endswith(IMAGE_EXTENSIONS):
                     self.hr_files.append(Path(str(hr_path)+'/'+file.name))
                     self.lr_files.append(Path(str(lr_paths[i])+'/'+file.name[0:-4]+'x'+str(downscale_factor)+file.name[-4:]))
-        print(self.hr_files)
-        print(self.lr_files)
+        # print(self.hr_files)
+        # print(self.lr_files)
 
         # 检查高分辨率和低分辨率图像的数量是否一致
         assert len(self.hr_files) == len(self.lr_files), (

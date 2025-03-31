@@ -24,8 +24,8 @@ class PARCEL_S2TestDataset(Dataset):
         for hr_image in self.hr_images:
             self.lr_images.append(hr_image[:-4]+'x1'+'.tif')
 
-        print(self.hr_images)
-        print(self.lr_images)
+        # print(self.hr_images)
+        # print(self.lr_images)
 
         # 检查 HR 和 LR 图像数量是否一致
         assert len(self.hr_images) == len(self.lr_images), "HR and LR image counts do not match."
@@ -64,4 +64,4 @@ class PARCEL_S2TestDataset(Dataset):
         image_hr = image_to_tensor(image_hr)
         image_lr = image_to_tensor(image_lr)
 
-        return {"image": image_hr, "image_lr": image_lr, "image_name_hr":hr_filename}
+        return {"image": image_hr, "image_lr": image_lr, "image_name_hr":hr_filename, "image_name_lr":lr_filename}
