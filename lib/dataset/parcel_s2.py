@@ -25,8 +25,6 @@ class PARCEL_S2Dataset(ImageFolders):
                 data_dir / "parcel_s2" / "parcel_s2_valid_LR",
             ]
 
-        print('downscale_factor:', downscale_factor)
-
         super().__init__(
             [paths[0]],
             [paths[1]],

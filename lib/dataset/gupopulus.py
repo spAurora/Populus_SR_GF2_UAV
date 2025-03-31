@@ -25,8 +25,6 @@ class GUPOPULUSDataset(ImageFolders):
                 data_dir / "gupopulus_2" / "gupopulus_valid_LR_bicubic" / "X2",
             ]
 
-        print('downscale_factor:', downscale_factor)
-
         super().__init__(
             [paths[0]],
             [paths[1]],

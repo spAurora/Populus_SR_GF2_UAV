@@ -31,31 +31,31 @@ class ECDP(ImageSizeMixin, nn.Module):
         rrdbnet = RRDBNet(options, rrdb_channels=options.model.rrdb_network_features)
         if options.train.dataset == "df2k":
             t = torch.load(
-                "pretrained-rrdbnet-df2k.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-df2k.pt", map_location=torch.device("cpu"), weights_only=True
             )
         elif options.train.dataset == "gupopulus":
             t = torch.load(
-                "pretrained-rrdbnet-gupopulus.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-gupopulus.pt", map_location=torch.device("cpu"), weights_only=True
             )
         elif options.train.dataset == "parcel_s2":
             t = torch.load(
-                "pretrained-rrdbnet-parcel_s2.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-parcel_s2.pt", map_location=torch.device("cpu"), weights_only=True
             )
         elif options.train.dataset == "parcel_gf2":
             t = torch.load(
-                "pretrained-rrdbnet-parcel_gf2.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-parcel_gf2.pt", map_location=torch.device("cpu"), weights_only=True
             )              
         elif options.train.dataset == "celeba":
             t = torch.load(
-                "pretrained-rrdbnet-celeba.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-celeba.pt", map_location=torch.device("cpu"), weights_only=True
             )
         elif options.train.dataset == "imagenet":
             t = torch.load(
-                "pretrained-rrdbnet-imagenet.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-imagenet.pt", map_location=torch.device("cpu"), weights_only=True
             )
         elif options.train.dataset == "ffhq":
             t = torch.load(
-                "pretrained-rrdbnet-ffhq.pt", map_location=torch.device("cpu")
+                "pretrained-rrdbnet-ffhq.pt", map_location=torch.device("cpu"), weights_only=True
             )
         else:
             raise ValueError("unknown dataset")
@@ -122,7 +122,7 @@ class ECDP(ImageSizeMixin, nn.Module):
         return self.diffusion.normalize(x, cond=(lr_feats, cond_scaled, scale))
 
     def _generate_sample(self, x, *, cond):
-        x = x.view(x.shape[0], self.in_channels, self.image_size_x, self.image_size_y)
+        x = x.view(x.shape[0], self.in_channels, self.image_size_x, self.image_size_y) # 显式重塑输入尺寸
         if self.diffusion.ddim:
             import torch.utils.checkpoint
 

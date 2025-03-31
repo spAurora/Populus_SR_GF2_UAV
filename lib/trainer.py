@@ -65,6 +65,7 @@ class Trainer:
             checkpoint = torch.load(
                 self.options.train.finetune_pretrained_model,
                 map_location=torch.device("cpu"),
+                weights_only=True
             )
             if "model_avg" in checkpoint:
                 self.model.load_state_dict(checkpoint["model_avg"])
@@ -124,7 +125,7 @@ class Trainer:
             self.model = DDP(self.model, device_ids=[self.rank])
             dist.broadcast(self.sample_fixed_latent, src=0)
 
-        self.lazy_values = LazyValues(
+        self.lazy_values = LazyValues( # 延迟加载
             epoch_length=lambda: len(self.train_dataloader),
             writer=self._get_writer,
             train_dataloader=lambda: get_train_dataloader(self.options),
@@ -132,13 +133,11 @@ class Trainer:
             test_dataset=lambda: get_test_dataset(self.options),
         )
 
-        for i, sample in enumerate(tqdm(self.train_dataloader)):
-            sample = sample_to_device(sample, self.device)
+        # for i, sample in enumerate(tqdm(self.train_dataloader)):
+        #     sample = sample_to_device(sample, self.device)
 
-            image = sample["image"]
-            image_lr = sample["image_lr"]
-
-            # print(image.shape, image_lr.shape)
+        #     image = sample["image"]
+        #     image_lr = sample["image_lr"]
             
 
         if (
@@ -161,7 +160,7 @@ class Trainer:
         )
         if self.checkpoint_path.is_file():
             checkpoint = torch.load(
-                self.checkpoint_path, map_location=torch.device("cpu")
+                self.checkpoint_path, map_location=torch.device("cpu"), weights_only=True
             )
             self.model.load_state_dict(checkpoint["model"])
             self.optim_model.load_state_dict(checkpoint["optim_model"])
@@ -546,7 +545,7 @@ class Trainer:
             batch_size=self.options.train.test_batch_size,
             shuffle=False,
             num_workers=4,
-            pin_memory=False,
+            pin_memory=torch.cuda.is_available(),
         )
 
         idx_base = 0

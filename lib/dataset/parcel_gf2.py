@@ -25,8 +25,6 @@ class PARCEL_GF2Dataset(ImageFolders):
                 data_dir / "parcel_gf2" / "parcel_gf2_valid_LR",
             ]
 
-        print('downscale_factor:', downscale_factor)
-
         super().__init__(
             [paths[0]],
             [paths[1]],
