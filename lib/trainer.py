@@ -254,10 +254,19 @@ class Trainer:
 
                 if not self.options.train.finetune_percep:
                     # print(image.shape, image_lr.shape) # wHy 241008
-                    loss = self.model(image, image_lr, mode="loss")
-                    loss = loss.mean()
-                    statistics["train loss"] = loss.item()
-                    loss.backward()
+                    ori_loss = self.model(image, image_lr, mode="loss")
+                    ori_loss = ori_loss.mean()
+                    statistics["train loss"] = ori_loss.item()
+
+                    self.model.model.diffusion.use_ode = True
+                    img_gen = self.model(image_lr, t=1.0, mode="random-generate")
+                    percep_loss = percep_net(img_gen, image)
+                    percep_loss = percep_loss.mean()
+                    statistics["train percep loss"] = percep_loss.item()                    
+
+                    print('ori_loss, percep_loss:', ori_loss, percep_loss)
+
+                    ori_loss.backward()
 
                 if self.options.train.finetune_percep:
                     self.model.model.diffusion.use_ode = True

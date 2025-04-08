@@ -111,7 +111,6 @@ class ECDP(ImageSizeMixin, nn.Module):
         # print(cond.shape)
         lr_feats = self.lr_feats(cond)
         # self.vis_cond(lr_feats) # 特征图可视化
-        # print(lr_feats.shape)
         cond_scaled = FV.resize(
             cond, (x.shape[2], x.shape[3]), interpolation=FV.InterpolationMode.BICUBIC
         )
