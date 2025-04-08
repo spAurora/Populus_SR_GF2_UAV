@@ -64,4 +64,4 @@ class PARCEL_GF2TestDataset(Dataset):
         image_hr = image_to_tensor(image_hr)
         image_lr = image_to_tensor(image_lr)
 
-        return {"image": image_hr, "image_lr": image_lr, "image_name_hr":hr_filename}
+        return {"image": image_hr, "image_lr": image_lr, "image_name_hr":hr_filename, "image_name_lr":lr_filename}
