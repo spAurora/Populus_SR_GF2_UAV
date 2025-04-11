@@ -87,6 +87,7 @@ class Trainer:
                 [
                     {"params": self.model.model.diffusion.parameters()},
                     {"params": self.model.model.lr_feats.parameters(), "lr": 1e-5},
+                    {'params': [self.model.model.log_var_mse, self.model.model.log_var_perceptual], "lr": 0.01}
                 ],
                 lr=self.options.train.lr,
             )
@@ -219,15 +220,17 @@ class Trainer:
                 self.global_step(epoch, 0),
             )
 
-        if self.options.train.finetune_percep:
-            percep_net = VGGPercepLoss().to(self.device)
+        # if self.options.train.finetune_percep:
+        #     percep_net = VGGPercepLoss().to(self.device)
+
+        percep_net = VGGPercepLoss().to(self.device) # 250408
 
         for i, sample in enumerate(tqdm(self.train_dataloader, desc=f"epoch {epoch}")):
-            # if (
-            #     hasattr(self.options.train, "train_epoch_clip")
-            #     and i >= self.options.train.train_epoch_clip # 该步骤在微调阶段在每个epoch只进行有限迭代
-            # ):
-            #     break
+            if (
+                hasattr(self.options.train, "train_epoch_clip")
+                and i >= self.options.train.train_epoch_clip # 该步骤在微调阶段在每个epoch只进行有限迭代
+            ):
+                break
 
             assert not self.options.train.finetune_gan
 
@@ -262,11 +265,18 @@ class Trainer:
                     img_gen = self.model(image_lr, t=1.0, mode="random-generate")
                     percep_loss = percep_net(img_gen, image)
                     percep_loss = percep_loss.mean()
-                    statistics["train percep loss"] = percep_loss.item()                    
+                    statistics["train percep loss"] = percep_loss.item()
 
-                    print('ori_loss, percep_loss:', ori_loss, percep_loss)
+                    loss_mse = 0.5 * torch.exp(-self.model.model.log_var_mse) * ori_loss + 0.5 * self.model.model.log_var_mse
+                    loss_perceptual = 0.5 * torch.exp(-self.model.model.log_var_perceptual) * percep_loss + 0.5 * self.model.model.log_var_perceptual 
 
-                    ori_loss.backward()
+                    total_loss = loss_mse + loss_perceptual
+
+                    print('\nori_loss, percep_loss, log_var_mase, log_var_perceptual, loss_mse, loss_perceptual, total_loss:', ori_loss.item(), percep_loss.item(), self.model.model.log_var_mse.item(), self.model.model.log_var_perceptual.item(), loss_mse.item(), loss_perceptual.item(), total_loss.item())
+                    print("log_var_mse grad:", self.model.model.log_var_mse.grad)
+
+                    # ori_loss.backward()
+                    total_loss.backward()
 
                 if self.options.train.finetune_percep:
                     self.model.model.diffusion.use_ode = True
@@ -277,6 +287,8 @@ class Trainer:
                     (percep_loss * self.options.train.finetune_percep_weight).backward()
                     self.model.model.diffusion.use_ode = False
 
+                    print('percep_loss, percep_loss * self.options.train.finetune_percep_weight:', percep_loss, percep_loss * self.options.train.finetune_percep_weight)
+
                 if self.options.train.finetune_pixel:
                     self.model.model.diffusion.use_ode = True
                     img_gen = self.model(image_lr, t=0.0, mode="random-generate")
@@ -285,6 +297,7 @@ class Trainer:
                     statistics["train pixel loss"] = pixel_loss.item()
                     (pixel_loss * self.options.train.finetune_pixel_weight).backward()
                     self.model.model.diffusion.use_ode = False
+
 
                 if self.options.train.clip_grad_value is not None:
                     torch.nn.utils.clip_grad_value_(

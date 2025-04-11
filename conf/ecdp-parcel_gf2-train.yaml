@@ -27,7 +27,7 @@ train:
 
   dataset: parcel_gf2
   epochs: 300
-  batch_size: 6
+  batch_size: 3
   train_image_size: 90
   lr: 1.0e-4
   lr_decay_factor: 0.5

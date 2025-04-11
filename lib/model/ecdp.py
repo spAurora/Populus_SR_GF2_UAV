@@ -15,6 +15,9 @@ class ECDP(ImageSizeMixin, nn.Module):
     def __init__(self, options):
         super().__init__()
 
+        self.log_var_mse = nn.Parameter(torch.tensor(-0.693))  # 初始权重≈1
+        self.log_var_perceptual = nn.Parameter(torch.tensor(6.2))  # 初始权重≈0.001
+
         self.in_channels = options.model.input_channels
         self.diffusion = Diffusion(
             UNet(

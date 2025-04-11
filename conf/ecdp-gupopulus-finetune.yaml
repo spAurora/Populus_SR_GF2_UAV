@@ -18,7 +18,7 @@ train:
   random_seed: null
   distributed: false
 
-  finetune_pretrained_model: results/20241227-225029-gupopulus_241227/checkpoints/checkpoint.pt ###
+  finetune_pretrained_model: results/20250408-222815-gupopulus_250408/checkpoints/checkpoint.pt ###
   finetune_percep: true
   finetune_pixel: false
   finetune_gan: false
@@ -27,7 +27,7 @@ train:
 
   dataset: gupopulus
   epochs: 500
-  train_epoch_clip: 2
+  train_epoch_clip: 20
   batch_size: 8
   train_image_size: 40
   lr: 1.0e-5
