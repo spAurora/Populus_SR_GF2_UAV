@@ -267,13 +267,16 @@ class Trainer:
                     percep_loss = percep_loss.mean()
                     statistics["train percep loss"] = percep_loss.item()
 
-                    loss_mse = 0.5 * torch.exp(-self.model.model.log_var_mse) * ori_loss + 0.5 * self.model.model.log_var_mse
-                    loss_perceptual = 0.5 * torch.exp(-self.model.model.log_var_perceptual) * percep_loss + 0.5 * self.model.model.log_var_perceptual 
+                    total_loss = ori_loss + 500*percep_loss
 
-                    total_loss = loss_mse + loss_perceptual
+                    # 动态权重
+                    # loss_mse = 0.5 * torch.exp(-self.model.model.log_var_mse) * ori_loss + 0.5 * self.model.model.log_var_mse
+                    # loss_perceptual = 0.5 * torch.exp(-self.model.model.log_var_perceptual) * percep_loss + 0.5 * self.model.model.log_var_perceptual 
 
-                    print('\nori_loss, percep_loss, log_var_mase, log_var_perceptual, loss_mse, loss_perceptual, total_loss:', ori_loss.item(), percep_loss.item(), self.model.model.log_var_mse.item(), self.model.model.log_var_perceptual.item(), loss_mse.item(), loss_perceptual.item(), total_loss.item())
-                    print("log_var_mse grad:", self.model.model.log_var_mse.grad)
+                    # total_loss = loss_mse + loss_perceptual
+
+                    # print('\nori_loss, percep_loss, log_var_mase, log_var_perceptual, loss_mse, loss_perceptual, total_loss:', ori_loss.item(), percep_loss.item(), self.model.model.log_var_mse.item(), self.model.model.log_var_perceptual.item(), loss_mse.item(), loss_perceptual.item(), total_loss.item())
+                    # print("log_var_mse grad:", self.model.model.log_var_mse.grad)
 
                     # ori_loss.backward()
                     total_loss.backward()
