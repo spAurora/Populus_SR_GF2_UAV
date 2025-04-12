@@ -72,6 +72,7 @@ class Trainer:
             else:
                 self.model.load_state_dict(checkpoint["model"])
         self.model = self.model.to(self.device)
+
         if self.options.train.finetune_gan:
             self.discriminator = VGGDiscriminator(self.options)
             self.discriminator = self.discriminator.to(self.device)
@@ -86,8 +87,7 @@ class Trainer:
             self.optim_model = optim.Adam(
                 [
                     {"params": self.model.model.diffusion.parameters()},
-                    {"params": self.model.model.lr_feats.parameters(), "lr": 1e-5},
-                    {'params': [self.model.model.log_var_mse, self.model.model.log_var_perceptual], "lr": 0.01}
+                    {"params": self.model.model.lr_feats.parameters(), "lr": 1e-5}
                 ],
                 lr=self.options.train.lr,
             )
