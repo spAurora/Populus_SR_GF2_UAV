@@ -18,6 +18,7 @@ from .metrics import LPIPS, gan_loss, psnr, ssim
 from .model import make_model
 from .model.discriminator import VGGDiscriminator
 from .model.percep import VGGPercepLoss
+from .model.percep import MobilePercepLoss
 from .utils import LazyValues, sample_to_device
 
 import os
@@ -223,7 +224,7 @@ class Trainer:
         # if self.options.train.finetune_percep:
         #     percep_net = VGGPercepLoss().to(self.device)
 
-        percep_net = VGGPercepLoss().to(self.device) # 250408
+        percep_net = MobilePercepLoss().to(self.device) # 250408
 
         for i, sample in enumerate(tqdm(self.train_dataloader, desc=f"epoch {epoch}")):
             if (
