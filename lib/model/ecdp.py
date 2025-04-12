@@ -11,6 +11,36 @@ from PIL import Image
 import os
 from osgeo import gdal
 
+def write_img(out_path, im_proj, im_geotrans, im_data, datatype):
+    """output img
+
+    Args:
+        out_path: Output path
+        im_proj: Affine transformation parameters
+        im_geotrans: spatial reference
+        im_data: Output image data
+
+    """
+    # calculate number of bands
+    if len(im_data.shape) > 2:  
+        im_bands, im_height, im_width = im_data.shape
+    else:  
+        im_bands, (im_height, im_width) = 1, im_data.shape
+
+    # create new img
+    driver = gdal.GetDriverByName("GTiff")
+    new_dataset = driver.Create(
+        out_path, im_width, im_height, im_bands, datatype)
+    # new_dataset.SetGeoTransform(im_geotrans)
+    # new_dataset.SetProjection(im_proj)
+    if im_bands == 1:
+        new_dataset.GetRasterBand(1).WriteArray(im_data.squeeze())
+    else:
+        for i in range(im_bands):
+            new_dataset.GetRasterBand(i + 1).WriteArray(im_data[i])
+
+    del new_dataset
+
 class ECDP(ImageSizeMixin, nn.Module):
     def __init__(self, options):
         super().__init__()
@@ -70,42 +100,32 @@ class ECDP(ImageSizeMixin, nn.Module):
         else:
             raise ValueError("invalid forward mode")
 
-    def vis_cond(self, cond):
-        output_dir = r'D:\github\Populus_SR_GF2_UAV\results\vis'
+    def vis_cond(self, lr_feats):
+        
+        output_path = r'D:\github_respository\Populus_SR_GF2_UAV\results\20250409-152034-gupopulus_250409\vis'
         # 确保cond是CPU上的张量并转为numpy数组
-        cond_np = cond.detach().cpu().numpy()  # [6, 256, 120, 120]
-        
+        lr_feats_np = lr_feats[0].detach().cpu().numpy()
         # 创建保存目录
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # 获取图像尺寸
-        height, width = cond_np.shape[2], cond_np.shape[3]
-        
-        # 为每个batch创建多通道图像
-        for b in range(cond_np.shape[0]):
-            # 准备输出文件名
-            output_path = os.path.join(output_dir, f"batch_{b}_multichannel.tif")
+        os.makedirs(output_path, exist_ok=True)
+        output_full_path = output_path + '/' + 'lr_feats.tif'
+        write_img(output_full_path, None, None, lr_feats_np, datatype=gdal.GDT_Float32)
+
+
+    def vis_tstep(self, x, scale, cond_scaled):
+        x_copy = x.clone()
+        x_copy = x_copy / scale
+        x_copy = x_copy + cond_scaled
+        x_copy = (x_copy.clamp(0, 1) * 255).round()
+        x_copy = x_copy.detach().cpu().numpy().astype(np.uint8)
+
+        output_path = r'D:\github_respository\Populus_SR_GF2_UAV\results\20250409-152034-gupopulus_250409\vis'
+        os.makedirs(output_path, exist_ok=True)
+
+        for i in range(x_copy.shape[0]):
+            output_data = x_copy[i][0]
+            output_full_path = output_path + '/' + 'step_' + str(i) + '.tif'
+            write_img(output_full_path, None, None, output_data, datatype=gdal.GDT_Byte)
             
-            # 创建多通道TIFF文件
-            driver = gdal.GetDriverByName('GTiff')
-            dataset = driver.Create(
-                output_path,
-                width,
-                height,
-                256,  # 256个通道
-                gdal.GDT_Float32  # 使用浮点型保存原始值
-            )
-            
-            # 写入每个通道的数据
-            for c in range(cond_np.shape[1]):
-                band = dataset.GetRasterBand(c+1)  # GDAL波段索引从1开始
-                band.WriteArray(cond_np[b, c])
-                band.FlushCache()
-            
-            # 关闭数据集
-            dataset = None
-        
-        exit(-1) # 可视化模式
 
     def _calculate_loss(self, x, *, cond):
         # print(cond.shape)
@@ -133,6 +153,13 @@ class ECDP(ImageSizeMixin, nn.Module):
         )
         scale = 5
         x = self.diffusion.generate(x, cond=(lr_feats, cond_scaled, scale))
+        
+        # 可视化
+        self.vis_cond(lr_feats)
+        self.vis_tstep(x, scale, cond_scaled)
+
+        if self.diffusion.use_ode:
+            x = x[-1]
         x = x / scale
         x = x + cond_scaled
         return x
