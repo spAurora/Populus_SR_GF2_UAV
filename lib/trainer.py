@@ -224,7 +224,7 @@ class Trainer:
         # if self.options.train.finetune_percep:
         #     percep_net = VGGPercepLoss().to(self.device)
 
-        percep_net = MobilePercepLoss().to(self.device) # 250408
+        percep_net = VGGPercepLoss().to(self.device) # 250408
 
         for i, sample in enumerate(tqdm(self.train_dataloader, desc=f"epoch {epoch}")):
             if (
@@ -264,12 +264,14 @@ class Trainer:
 
                     self.model.model.diffusion.use_ode = True
                     img_gen = self.model(image_lr, t=1.0, mode="random-generate")
-                    percep_loss = percep_net(img_gen, image)
+                    with torch.no_grad():
+                        percep_loss = percep_net(img_gen, image)
+                    percep_loss = percep_loss.clone().detach().requires_grad_() # 分离张量
                     percep_loss = percep_loss.mean()
                     statistics["train percep loss"] = percep_loss.item()
 
-                    total_loss = ori_loss + 500*percep_loss
-
+                    total_loss = ori_loss + 0.5*255*percep_loss
+                    print('\nori_loss, percep_loss, total_loss:', ori_loss.item(), percep_loss.item(), total_loss.item())
                     # 动态权重
                     # loss_mse = 0.5 * torch.exp(-self.model.model.log_var_mse) * ori_loss + 0.5 * self.model.model.log_var_mse
                     # loss_perceptual = 0.5 * torch.exp(-self.model.model.log_var_perceptual) * percep_loss + 0.5 * self.model.model.log_var_perceptual 

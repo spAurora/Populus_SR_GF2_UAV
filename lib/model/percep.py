@@ -48,4 +48,5 @@ class MobilePercepLoss(nn.Module):
     def forward(self, x, y):
         x = self.features(self.normalize(x))
         y = self.features(self.normalize(y))
-        return (x - y).abs().flatten(1, -1).mean(dim=1)
+        z = (x - y).abs().flatten(1, -1).mean(dim=1)
+        return z
