@@ -25,7 +25,7 @@ train:
   finetune_pixel: false
   finetune_gan: false
 
-  dataset: gupopulus
+  dataset: gupopulus_mask
   epochs: 500
   batch_size: 8
   train_image_size: 40

@@ -22,7 +22,7 @@ class GUPOPULUSDataset(ImageFolders):
         else:
             paths = [
                 data_dir / "gupopulus_2" / "gupopulus_valid_HR",
-                data_dir / "gupopulus_2" / "gupopulus_valid_LR_bicubic" / "X2",
+                data_dir / "gupopulus_2" / "gupopulus_valid_LR",
             ]
 
         super().__init__(

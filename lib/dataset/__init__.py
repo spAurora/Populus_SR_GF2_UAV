@@ -16,6 +16,9 @@ from .toy import ToyDataset
 from .gupopulus import GUPOPULUSDataset
 from .gupopulus_test import GUPOPULUSTestDataset
 
+from .gupopulus_mask import GUPOPULUSDataset_MASK, GUPOPULUSDataset_MASK_VAL
+from .gupopulus_mask_test import GUPOPULUSTestDataset_MASK
+
 from .parcel_s2 import PARCEL_S2Dataset
 from .parcel_s2_test import PARCEL_S2TestDataset
 
@@ -37,6 +40,13 @@ def get_train_dataloader(options):
         )
     elif options.train.dataset == "gupopulus":
         dataset = GUPOPULUSDataset(
+            options.train.data_dir,
+            2,
+            True,
+            random_crop_size=options.train.train_image_size,
+        )
+    elif options.train.dataset == "gupopulus_mask":
+        dataset = GUPOPULUSDataset_MASK(
             options.train.data_dir,
             2,
             True,
@@ -118,6 +128,15 @@ def get_val_dataloader(options):
             deterministic=True,
             repeat=2,
         )
+    elif options.train.dataset == "gupopulus_mask":
+        dataset = GUPOPULUSDataset_MASK_VAL(
+            options.train.data_dir,
+            2,
+            False,
+            random_crop_size=options.train.train_image_size,
+            deterministic=True,
+            repeat=2,
+        )
     elif options.train.dataset == "parcel_s2":
         dataset = PARCEL_S2Dataset(
             options.train.data_dir,
@@ -182,6 +201,8 @@ def get_test_dataset(options):
         dataset = DIV2kTestDataset(options.train.data_dir)
     elif options.train.dataset == "gupopulus":
         dataset = GUPOPULUSTestDataset(options.train.data_dir)
+    elif options.train.dataset == "gupopulus_mask":
+        dataset = GUPOPULUSTestDataset_MASK(options.train.data_dir)
     elif options.train.dataset == "parcel_s2":
         dataset = PARCEL_S2TestDataset(options.train.data_dir)
     elif options.train.dataset == "parcel_gf2":

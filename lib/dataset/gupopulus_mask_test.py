@@ -5,7 +5,7 @@ from pathlib import Path
 from torch.utils.data import Dataset
 from .utils import image_to_tensor
 
-class GUPOPULUSTestDataset(Dataset):
+class GUPOPULUSTestDataset_MASK(Dataset):
     def __init__(self, data_dir):
         """
         Dataset for testing GUPOPULUS images.
