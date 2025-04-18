@@ -64,3 +64,42 @@ class AugmentedDataset(Dataset):
             }
 
         return {"image": image, "image_lr": image_lr}
+
+
+class AugmentedDataset_MASK(Dataset):
+    def __init__(
+        self,
+        dataset,
+        *,
+        random_flip=True,
+        random_rotate=True,
+        dequantize=True,
+        aggressive=False
+    ):
+        self.dataset = dataset
+        self.random_flip = random_flip
+        self.random_rotate = random_rotate
+        self.dequantize = dequantize
+        self.aggressive = aggressive
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        data = self.dataset[idx]
+        image = data["image"]
+        image_lr = data["image_lr"]
+        image_mask = data["image_mask"]
+
+        if self.random_flip and torch.rand(()) < 0.5:
+            image = FV.hflip(image)
+            image_lr = FV.hflip(image_lr)
+            image_mask = FV.hflip(image_mask)
+
+        if self.random_rotate:
+            k = torch.randint(0, 4, size=()).item()
+            image = torch.rot90(image, k, dims=[-2, -1])
+            image_lr = torch.rot90(image_lr, k, dims=[-2, -1])
+            image_mask = torch.rot90(image_mask, k, dims=[-2, -1])
+
+        return {"image": image, "image_lr": image_lr, "image_mask": image_mask}

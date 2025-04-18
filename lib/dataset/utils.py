@@ -9,7 +9,6 @@ def image_to_tensor(image):
     image = image.to(torch.get_default_dtype()) / 255.0
     return image
 
-
 def image_to_hr_lr_tensor(image, downscale_factor):
     image_lr = imresize(
         image,

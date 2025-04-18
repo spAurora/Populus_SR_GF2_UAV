@@ -39,6 +39,8 @@ class ConditionalDensityModel(ImageSizeManagerMixin, nn.Module):
     def forward(self, *args, mode, **kwargs):
         if mode == "loss":
             return self._calculate_loss(*args, **kwargs)
+        elif mode == "loss-mask":
+            return self._calculate_loss_mask(*args, **kwargs)
         elif mode == "generate":
             return self._generate_sample(*args, **kwargs)
         elif mode == "random-generate":
@@ -50,6 +52,10 @@ class ConditionalDensityModel(ImageSizeManagerMixin, nn.Module):
 
     def _calculate_loss(self, x, cond):
         x = self.model(x, cond=cond, mode="loss")
+        return x
+
+    def _calculate_loss_mask(self, x, cond, mask):
+        x = self.model(x, cond=cond, mask=mask, mode="loss-mask")
         return x
 
     def _generate_sample(self, z, cond):

@@ -16,7 +16,7 @@ class GUPOPULUSDataset_MASK(ImageFolders_Mask):
             paths = [
                 data_dir / "gupopulus_2" / "gupopulus_train_HR",
                 data_dir / "gupopulus_2" / "gupopulus_train_LR",
-                data_dir / "gupopulus_2" / "gupopulus_train_mask",
+                data_dir / "gupopulus_2" / "gupopulus_train_MASK",
             ]
 
             super().__init__(

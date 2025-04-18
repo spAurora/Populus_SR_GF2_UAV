@@ -75,6 +75,33 @@ class Diffusion(nn.Module):
 
         return loss
 
+    def normalize_mask(self, x, *, cond, mask):
+        cond, diff_mean, diff_scale = cond
+        ts = (
+            torch.rand(x.shape[0], device=x.device) * (len(self.alpha_bars) - 0) + 0
+        )
+        sampled_aa = self.t_to_aa(ts / len(self.alpha_bars))
+        self.t_count = 0
+
+        eps = make_rand_like(x)
+        xt = (
+            x * sampled_aa.sqrt()[:, None, None, None]
+            + eps * (1 - sampled_aa).sqrt()[:, None, None, None]
+        )
+        network_pred_eps_x0 = self.network(xt, ts, cond)
+        network_pred_eps, network_pred_x0 = network_pred_eps_x0.split(
+            network_pred_eps_x0.shape[1] // 2, dim=1
+        )
+
+        if mask.dim() == 3:  # [B,H,W]
+            mask = mask.unsqueeze(1)  # -> [B,1,H,W]
+
+        loss1 = ((network_pred_eps - eps).square() * mask).sum(dim=[1, 2, 3]) / (mask.sum(dim=[1, 2, 3]) + 1e-6) # 噪声预测MSE
+        loss2 = ((network_pred_x0 - x).square() * mask).sum(dim=[1, 2, 3]) / (mask.sum(dim=[1, 2, 3]) + 1e-6) # 原始输入重建MSE
+        loss = loss1 + loss2
+
+        return loss
+
     def generate(self, x, *, cond):
         def next_step(x, cond, t, the_eps):
             network_pred_eps_x0 = self.network(

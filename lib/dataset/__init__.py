@@ -3,7 +3,7 @@ import warnings
 import torch.distributed as dist
 from torch.utils.data import DataLoader, DistributedSampler
 
-from .augmented import AugmentedDataset
+from .augmented import AugmentedDataset, AugmentedDataset_MASK
 from .celeba import CelebADataset
 from .cifar10 import CIFAR10Dataset
 from .df2k import DF2kDataset
@@ -76,7 +76,12 @@ def get_train_dataloader(options):
         dataset = ToyDataset(10000)
     else:
         raise ValueError("unknown dataset")
-    dataset = AugmentedDataset(dataset, aggressive=False)
+    
+    # 数据集增强
+    if options.train.dataset == "gupopulus_mask":
+        dataset = AugmentedDataset_MASK(dataset, aggressive=False)
+    else:
+        dataset = AugmentedDataset(dataset, aggressive=False)
 
     if options.train.distributed:
         world_size = dist.get_world_size()
@@ -165,6 +170,7 @@ def get_val_dataloader(options):
         dataset = ToyDataset(1000)
     else:
         raise ValueError("unknown dataset")
+    
     dataset = AugmentedDataset(dataset, random_flip=False, random_rotate=False)
 
     if options.train.distributed:

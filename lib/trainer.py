@@ -37,6 +37,9 @@ class DummyWriter:
 
 class Trainer:
     def __init__(self, options):
+
+        self.mask_mode = True # 以此参数是否开启掩膜模式
+
         self.options = options
 
         if self.options.train.distributed:
@@ -251,38 +254,49 @@ class Trainer:
             image = sample["image"]
             image_lr = sample["image_lr"]
 
+            if self.mask_mode:
+                image_mask = sample["image_mask"]
+
             statistics = {}
 
             if to_train_model:
                 self.optim_model.zero_grad(set_to_none=True)
 
                 if not self.options.train.finetune_percep:
-                    # print(image.shape, image_lr.shape) # wHy 241008
-                    ori_loss = self.model(image, image_lr, mode="loss")
-                    ori_loss = ori_loss.mean()
-                    statistics["train loss"] = ori_loss.item()
+                    if not self.mask_mode:
+                        # print(image.shape, image_lr.shape) # wHy 241008
+                        ori_loss = self.model(image, image_lr, mode="loss")
+                        ori_loss = ori_loss.mean()
+                        statistics["train loss"] = ori_loss.item()
 
-                    self.model.model.diffusion.use_ode = True
-                    img_gen = self.model(image_lr, t=1.0, mode="random-generate")
-                    with torch.no_grad():
-                        percep_loss = percep_net(img_gen, image)
-                    percep_loss = percep_loss.clone().detach().requires_grad_() # 分离张量
-                    percep_loss = percep_loss.mean()
-                    statistics["train percep loss"] = percep_loss.item()
+                        self.model.model.diffusion.use_ode = True
+                        img_gen = self.model(image_lr, t=1.0, mode="random-generate")
+                        with torch.no_grad():
+                            percep_loss = percep_net(img_gen, image)
+                        percep_loss = percep_loss.clone().detach().requires_grad_() # 分离张量
+                        percep_loss = percep_loss.mean()
+                        statistics["train percep loss"] = percep_loss.item()
 
-                    total_loss = ori_loss + 0.5*255*percep_loss
-                    print('\nori_loss, percep_loss, total_loss:', ori_loss.item(), percep_loss.item(), total_loss.item())
-                    # 动态权重
-                    # loss_mse = 0.5 * torch.exp(-self.model.model.log_var_mse) * ori_loss + 0.5 * self.model.model.log_var_mse
-                    # loss_perceptual = 0.5 * torch.exp(-self.model.model.log_var_perceptual) * percep_loss + 0.5 * self.model.model.log_var_perceptual 
+                        total_loss = ori_loss + 0.5*255*percep_loss
+                        print('\nori_loss, percep_loss, total_loss:', ori_loss.item(), percep_loss.item(), total_loss.item())
+                        # 动态权重
+                        # loss_mse = 0.5 * torch.exp(-self.model.model.log_var_mse) * ori_loss + 0.5 * self.model.model.log_var_mse
+                        # loss_perceptual = 0.5 * torch.exp(-self.model.model.log_var_perceptual) * percep_loss + 0.5 * self.model.model.log_var_perceptual 
 
-                    # total_loss = loss_mse + loss_perceptual
+                        # total_loss = loss_mse + loss_perceptual
 
-                    # print('\nori_loss, percep_loss, log_var_mase, log_var_perceptual, loss_mse, loss_perceptual, total_loss:', ori_loss.item(), percep_loss.item(), self.model.model.log_var_mse.item(), self.model.model.log_var_perceptual.item(), loss_mse.item(), loss_perceptual.item(), total_loss.item())
-                    # print("log_var_mse grad:", self.model.model.log_var_mse.grad)
+                        # print('\nori_loss, percep_loss, log_var_mase, log_var_perceptual, loss_mse, loss_perceptual, total_loss:', ori_loss.item(), percep_loss.item(), self.model.model.log_var_mse.item(), self.model.model.log_var_perceptual.item(), loss_mse.item(), loss_perceptual.item(), total_loss.item())
+                        # print("log_var_mse grad:", self.model.model.log_var_mse.grad)
 
-                    # ori_loss.backward()
-                    total_loss.backward()
+                        # ori_loss.backward()
+                        total_loss.backward()
+                    else:
+                        ori_loss = self.model(image, image_lr, image_mask, mode="loss-mask")
+                        ori_loss = ori_loss.mean()
+                        statistics["train loss-mask"] = ori_loss.item()
+
+                        ori_loss.backward()
+
 
                 if self.options.train.finetune_percep:
                     self.model.model.diffusion.use_ode = True

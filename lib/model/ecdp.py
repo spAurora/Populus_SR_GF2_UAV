@@ -63,7 +63,7 @@ class ECDP(ImageSizeMixin, nn.Module):
             t = torch.load(
                 "pretrained-rrdbnet-df2k.pt", map_location=torch.device("cpu"), weights_only=True
             )
-        elif options.train.dataset == "gupopulus":
+        elif options.train.dataset == "gupopulus" or options.train.dataset == "gupopulus_mask":
             t = torch.load(
                 "pretrained-rrdbnet-gupopulus.pt", map_location=torch.device("cpu"), weights_only=True
             )
@@ -95,6 +95,8 @@ class ECDP(ImageSizeMixin, nn.Module):
     def forward(self, *args, mode, **kwargs):
         if mode == "loss":
             return self._calculate_loss(*args, **kwargs)
+        elif mode == "loss-mask":
+            return self._calculate_loss_mask(*args, **kwargs)
         elif mode == "generate":
             return self._generate_sample(*args, **kwargs)
         else:
@@ -128,17 +130,24 @@ class ECDP(ImageSizeMixin, nn.Module):
             
 
     def _calculate_loss(self, x, *, cond):
-        # print(cond.shape)
         lr_feats = self.lr_feats(cond)
-        # self.vis_cond(lr_feats) # 特征图可视化
         cond_scaled = FV.resize(
             cond, (x.shape[2], x.shape[3]), interpolation=FV.InterpolationMode.BICUBIC
         )
-        # print(cond_scaled.shape)
         scale = 5
         x = x - cond_scaled
         x = x * scale
         return self.diffusion.normalize(x, cond=(lr_feats, cond_scaled, scale))
+    
+    def _calculate_loss_mask(self, x, *, cond, mask):
+        lr_feats = self.lr_feats(cond)
+        cond_scaled = FV.resize(
+            cond, (x.shape[2], x.shape[3]), interpolation=FV.InterpolationMode.BICUBIC
+        )
+        scale = 5
+        x = x - cond_scaled
+        x = x * scale
+        return self.diffusion.normalize_mask(x, cond=(lr_feats, cond_scaled, scale), mask=mask)        
 
     def _generate_sample(self, x, *, cond):
         x = x.view(x.shape[0], self.in_channels, self.image_size_x, self.image_size_y) # 显式重塑输入尺寸
@@ -154,9 +163,9 @@ class ECDP(ImageSizeMixin, nn.Module):
         scale = 5
         x = self.diffusion.generate(x, cond=(lr_feats, cond_scaled, scale))
         
-        # 可视化
-        self.vis_cond(lr_feats)
-        self.vis_tstep(x, scale, cond_scaled)
+        # # 可视化
+        # self.vis_cond(lr_feats)
+        # self.vis_tstep(x, scale, cond_scaled)
 
         if self.diffusion.use_ode:
             x = x[-1]

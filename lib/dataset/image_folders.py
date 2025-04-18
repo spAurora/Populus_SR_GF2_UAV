@@ -269,10 +269,11 @@ class ImageFolders_Mask(Dataset):
 
         # 读取掩膜图像
         with Image.open(mask_path) as mask_image_file:
-            mask_image = np.asarray(mask_image, dtype=np.uint8)
+            mask_image = np.asarray(mask_image_file, dtype=np.float16)
 
         # print(hr_image.shape, lr_image.shape)
 
+        # wHy241010 有bug，高低分图像裁剪范围不应该一致
         if self.pre_crop:
             target_size = min(hr_image.shape[0], hr_image.shape[1])
             if self.deterministic:
@@ -341,7 +342,7 @@ class ImageFolders_Mask(Dataset):
 
         # 将图像转换为张量格式
         hr_image = image_to_tensor(hr_image)
-        mask_image = image_to_tensor(mask_image)
+        mask_image = torch.from_numpy(mask_image)
         lr_image = image_to_tensor(lr_image)
 
-        return {"image": hr_image, "image_lr": lr_image, "mask_image": mask_image}
+        return {"image": hr_image, "image_lr": lr_image, "image_mask": mask_image}
