@@ -140,7 +140,8 @@ class Diffusion(nn.Module):
             x = odeint(
                 lambda t, net_in: self.ode_func(net_in, t, cond), # ODE系统的导数函数，形式必须为 f(t, x)
                 x, # # 初始状态
-                torch.tensor([len(self.alpha_bars),298.0,285.0,275.0,250.0,225.0,200.0,175.0,150.0,125.0,100.0,75.0,50.0,25.0,0.2], device=x.device), # 时间范围 [t_start, ..., t_end]
+                # torch.tensor([len(self.alpha_bars),298.0,285.0,275.0,250.0,225.0,200.0,175.0,150.0,125.0,100.0,75.0,50.0,25.0,0.2], device=x.device), # 时间范围 [t_start, ..., t_end]
+                torch.tensor([len(self.alpha_bars),0.1], device=x.device),
                 atol=1e-3, # 绝对误差容限
                 rtol=1e-3, # 相对误差容限
                 options={"jump_t": torch.tensor([0.1], device=x.device)},

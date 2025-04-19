@@ -30,7 +30,7 @@ class VGGPercepLoss(nn.Module):
 
     def forward(self, x, y):
         x = self.feature_extract(x)
-        y = self.feature_extract(y)
+        y = self.feature_extract(y.detach())
         return (x - y).abs().flatten(1, -1).mean(dim=1)
     
 

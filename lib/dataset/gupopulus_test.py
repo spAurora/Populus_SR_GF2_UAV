@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 from .utils import image_to_tensor
 
 class GUPOPULUSTestDataset(Dataset):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, downscalefactor):
         """
         Dataset for testing GUPOPULUS images.
 
@@ -22,7 +22,7 @@ class GUPOPULUSTestDataset(Dataset):
 
         self.lr_images = []
         for hr_image in self.hr_images:
-            self.lr_images.append(hr_image[:-4]+'x'+os.path.split(self.lr_dir)[-1][-1]+'.png')
+            self.lr_images.append(hr_image[:-4]+'x'+str(downscalefactor)+'.png')
 
         print(self.hr_images)
         print(self.lr_images)

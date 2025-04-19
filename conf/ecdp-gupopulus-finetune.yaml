@@ -18,7 +18,7 @@ train:
   random_seed: null
   distributed: false
 
-  finetune_pretrained_model: results/20250408-222815-gupopulus_250408/checkpoints/checkpoint.pt ###
+  finetune_pretrained_model: results/20250419-020439-gupopulus_250419-old_dataset_no_mask/checkpoints/checkpoint.pt ###
   finetune_percep: true
   finetune_pixel: false
   finetune_gan: false

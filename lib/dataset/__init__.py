@@ -206,9 +206,9 @@ def get_test_dataset(options):
     if options.train.dataset == "df2k":
         dataset = DIV2kTestDataset(options.train.data_dir)
     elif options.train.dataset == "gupopulus":
-        dataset = GUPOPULUSTestDataset(options.train.data_dir)
+        dataset = GUPOPULUSTestDataset(options.train.data_dir, 2)
     elif options.train.dataset == "gupopulus_mask":
-        dataset = GUPOPULUSTestDataset_MASK(options.train.data_dir)
+        dataset = GUPOPULUSTestDataset_MASK(options.train.data_dir, 2)
     elif options.train.dataset == "parcel_s2":
         dataset = PARCEL_S2TestDataset(options.train.data_dir)
     elif options.train.dataset == "parcel_gf2":

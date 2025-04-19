@@ -113,12 +113,12 @@ def process_single_image(img_name, hr_img_path, lr_img_path, output_path, T_valu
 def main():
     # os.environ['GDAL_DATA'] = r'C:\Users\75198\anaconda3\envs\learn\Lib\site-packages\osgeo\data\gdal' # To prevent ERROR4
 
-    hr_img_path = r'D:\github_respository\Populus_SR_GF2_UAV\data\gupopulus_2\gupopulus_train_HR'
-    lr_img_path = r'D:\github_respository\Populus_SR_GF2_UAV\data\gupopulus_2\gupopulus_train_LR'
-    output_path = r'D:\github_respository\Populus_SR_GF2_UAV\data\gupopulus_2\gupopulus_train_MASK'
+    hr_img_path = r'D:\github\Populus_SR_GF2_UAV\data\gupopulus\gupopulus_train_HR'
+    lr_img_path = r'D:\github\Populus_SR_GF2_UAV\data\gupopulus\gupopulus_train_LR'
+    output_path = r'D:\github\Populus_SR_GF2_UAV\data\gupopulus\gupopulus_train_MASK'
     
-    T_value_hr = 52 # 高分图像二值化阈值
-    T_value_lr = 50 # 低分图像二值化阈值
+    T_value_hr = 60 # 高分图像二值化阈值
+    T_value_lr = 70 # 低分图像二值化阈值
     binary_band_index = 0 # 二值化波段
 
     down_scale_factor = 2
