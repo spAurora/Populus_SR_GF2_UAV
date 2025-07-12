@@ -52,13 +52,17 @@ class ImageFolders(Dataset):
         # print(self.lr_files)
 
         print(hr_paths, lr_paths)
+
         # 获取高分辨率图像的文件路径
         for i in range(len(hr_paths)):
-            hr_path = hr_paths[i]
+            hr_path = hr_paths[i]/f'x{downscale_factor}'
+            lr_path = lr_paths[i]
             for file in hr_path.iterdir():
                 if file.is_file() and str(file).lower().endswith(IMAGE_EXTENSIONS):
+                    # self.hr_files.append(Path(str(hr_path)+'/'+file.name))
+                    # self.lr_files.append(Path(str(lr_path)+'/'+file.name[0:-4]+'x'+str(downscale_factor)+file.name[-4:]))
                     self.hr_files.append(Path(str(hr_path)+'/'+file.name))
-                    self.lr_files.append(Path(str(lr_paths[i])+'/'+file.name[0:-4]+'x'+str(downscale_factor)+file.name[-4:]))
+                    self.lr_files.append(Path(str(lr_path)+'/'+file.name))
         # print(self.hr_files)
         # print(self.lr_files)
 

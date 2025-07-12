@@ -19,6 +19,9 @@ from .gupopulus_test import GUPOPULUSTestDataset
 from .gupopulus_mask import GUPOPULUSDataset_MASK, GUPOPULUSDataset_MASK_VAL
 from .gupopulus_mask_test import GUPOPULUSTestDataset_MASK
 
+from .gupopulus_D import GUPOPULUS_D_Dataset
+from .gupopulus_D_test import GUPOPULUS_D_TestDataset
+
 from .parcel_s2 import PARCEL_S2Dataset
 from .parcel_s2_test import PARCEL_S2TestDataset
 
@@ -49,6 +52,14 @@ def get_train_dataloader(options):
         dataset = GUPOPULUSDataset_MASK(
             options.train.data_dir,
             2,
+            True,
+            random_crop_size=options.train.train_image_size,
+        )
+    elif options.train.dataset == "gupopulus_D":
+        dataset = GUPOPULUS_D_Dataset(
+            options.train.data_dir,
+            options.model.sr_factor,
+            options.train.dataset_index,
             True,
             random_crop_size=options.train.train_image_size,
         )
@@ -142,6 +153,16 @@ def get_val_dataloader(options):
             deterministic=True,
             repeat=2,
         )
+    elif options.train.dataset == "gupopulus_D":
+        dataset = GUPOPULUS_D_Dataset(
+            options.train.data_dir,
+            options.model.sr_factor,
+            options.train.dataset_index,
+            False,
+            random_crop_size=options.train.train_image_size,
+            deterministic=True,
+            repeat=2,
+        )
     elif options.train.dataset == "parcel_s2":
         dataset = PARCEL_S2Dataset(
             options.train.data_dir,
@@ -209,6 +230,8 @@ def get_test_dataset(options):
         dataset = GUPOPULUSTestDataset(options.train.data_dir, 2)
     elif options.train.dataset == "gupopulus_mask":
         dataset = GUPOPULUSTestDataset_MASK(options.train.data_dir, 2)
+    elif options.train.dataset == "gupopulus_D":
+        dataset = GUPOPULUS_D_TestDataset(options.train.data_dir, options.model.sr_factor, options.train.dataset_index)
     elif options.train.dataset == "parcel_s2":
         dataset = PARCEL_S2TestDataset(options.train.data_dir)
     elif options.train.dataset == "parcel_gf2":

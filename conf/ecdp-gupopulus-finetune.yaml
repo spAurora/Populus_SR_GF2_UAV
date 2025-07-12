@@ -25,7 +25,8 @@ train:
   finetune_percep_weight: 0.5
   # finetune_pixel_weight: 50.0
 
-  dataset: gupopulus
+  dataset: gupopulus_D
+  dataset_index: 0
   epochs: 500
   train_epoch_clip: 20
   batch_size: 8

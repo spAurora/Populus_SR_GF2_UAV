@@ -1,0 +1,36 @@
+from .image_folders import ImageFolders
+
+
+class GUPOPULUS_D_Dataset(ImageFolders):
+    def __init__(
+        self,
+        data_dir,
+        downscale_factor,
+        D_index,
+        train: bool,
+        *,
+        random_crop_size=None,
+        deterministic=False,
+        repeat=1
+    ):
+        if train:
+            paths = [
+                data_dir / f"gupopulus_D{D_index}" / "gupopulus_train_HR",
+                data_dir / f"gupopulus_D{D_index}" / "gupopulus_train_LR",
+                # data_dir / "flickr2k" / "Flickr2K_HR",  # wHy 241008
+            ]
+            # print('random crop size:', random_crop_size) # wHy 241008
+        else:
+            paths = [
+                data_dir / f"gupopulus_D{D_index}" / "gupopulus_valid_HR",
+                data_dir / f"gupopulus_D{D_index}" / "gupopulus_valid_LR",
+            ]
+
+        super().__init__(
+            [paths[0]],
+            [paths[1]],
+            downscale_factor,
+            random_crop_size=random_crop_size,
+            deterministic=deterministic,
+            repeat=repeat,
+        )
