@@ -1,7 +1,7 @@
 model:
   type: rrdbnet
   input_channels: 3
-  sr_factor: 2
+  sr_factor: 4
 
   rrdb_num_blocks: 23
   rrdb_block_selection: [22]
@@ -22,7 +22,8 @@ train:
   finetune_pixel: false
   finetune_gan: false
 
-  dataset: gupopulus
+  dataset: gupopulus_D
+  dataset_index: 0
   epochs: 500
   batch_size: 8
   train_image_size: 40
