@@ -1,7 +1,7 @@
 model:
   type: ecdp
   input_channels: 3
-  sr_factor: 4
+  sr_factor: 2
 
   rrdb_num_blocks: 23
   rrdb_block_selection: [1, 8, 15, 22]
@@ -18,7 +18,7 @@ train:
   random_seed: null
   distributed: false
 
-  finetune_pretrained_model: results/20250419-020439-gupopulus_250419-old_dataset_no_mask/checkpoints/checkpoint.pt ###
+  finetune_pretrained_model: results/20250716-144323-gupopulus_D3_x2_250713/checkpoints/checkpoint.pt ###
   finetune_percep: true
   finetune_pixel: false
   finetune_gan: false
@@ -26,14 +26,14 @@ train:
   # finetune_pixel_weight: 50.0
 
   dataset: gupopulus_D
-  dataset_index: 0
-  epochs: 500
+  dataset_index: 3
+  epochs: 300
   train_epoch_clip: 20
   batch_size: 8
   train_image_size: 40
   lr: 1.0e-5
   lr_decay_factor: 0.5
-  lr_decay_epochs: [100, 200, 300, 400]
+  lr_decay_epochs: [50, 100, 150, 200, 250]
   lr_warmup_steps: 1
   clip_grad_value: 10
   param_running_avg: 10
@@ -41,5 +41,5 @@ train:
   visualize_batch_size: 8
   test_interval: 50
   val_images_interval: 1
-  checkpoint_backup_interval: 5
+  checkpoint_backup_interval: 50
   test_batch_size: 1

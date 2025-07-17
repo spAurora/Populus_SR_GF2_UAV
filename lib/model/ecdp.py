@@ -65,7 +65,7 @@ class ECDP(ImageSizeMixin, nn.Module):
             )
         elif options.train.dataset == "gupopulus" or options.train.dataset == "gupopulus_mask" or options.train.dataset == "gupopulus_D":
             t = torch.load(
-                "pretrained-rrdbnet-gupopulus.pt", map_location=torch.device("cpu"), weights_only=True
+                "pretrained-rrdbnet-gupopulus" + "-x" + str(options.model.sr_factor)+".pt", map_location=torch.device("cpu"), weights_only=True
             )
         elif options.train.dataset == "parcel_s2":
             t = torch.load(

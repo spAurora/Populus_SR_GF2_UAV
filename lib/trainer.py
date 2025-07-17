@@ -161,7 +161,7 @@ class Trainer:
             self.model_avg.model.set_generate_steps(300)
 
         self.checkpoint_path = (
-            self.options.train.result_dir / "checkpoints" / "checkpoint.pt"
+            self.options.train.result_dir / "checkpoints" / "checkpoint.pt" # wHy替换预测模型
         )
         if self.checkpoint_path.is_file():
             checkpoint = torch.load(

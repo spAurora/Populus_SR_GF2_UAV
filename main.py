@@ -7,11 +7,11 @@ from lib.commands import ALL_COMMANDS
 
 def main():
     cli = click.Group(commands=ALL_COMMANDS)
-    cli(['train', '--config', 'conf/rrdbnet-gupopulus.yaml', 'gupopulus_x4'])
-    # cli(['train', '--config', 'conf/ecdp-gupopulus-train.yaml', 'gupopulus_D0_x4_250713'])
-    # cli(['train', '--config', 'conf/ecdp-gupopulus-finetune.yaml', 'gupopulus_250419'])
+    # cli(['train', '--config', 'conf/rrdbnet-gupopulus.yaml', 'gupopulus_x8'])
+    # cli(['train', '--config', 'conf/ecdp-gupopulus-train.yaml', 'gupopulus_D3_x2_250713'])
+    # cli(['train', '--config', 'conf/ecdp-gupopulus-finetune.yaml', 'gupopulus_D3_x2_finetune_250713'])
     # cli(['test', '20250329-011812-parcel_s2_250329', '--save-images'])
-    # cli(['predict', '20250419-020439-gupopulus_250419-old_dataset_no_mask', '--save-images'])
+    cli(['predict', '20250716-221722-gupopulus_D3_x2_finetune_250713', '--save-images'])
     cli.main()
 
 

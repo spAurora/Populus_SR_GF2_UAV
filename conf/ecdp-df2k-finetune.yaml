@@ -1,7 +1,7 @@
 model:
   type: ecdp
   input_channels: 3
-  sr_factor: 4
+  sr_factor: 8
 
   rrdb_num_blocks: 23
   rrdb_block_selection: [1, 8, 15, 22]
