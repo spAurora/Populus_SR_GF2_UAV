@@ -1,7 +1,7 @@
 model:
   type: ecdp
   input_channels: 3
-  sr_factor: 2
+  sr_factor: 4
 
   rrdb_num_blocks: 23
   rrdb_block_selection: [1, 8, 15, 22]
@@ -26,7 +26,7 @@ train:
   # finetune_pixel_weight: 50.0
 
   dataset: gupopulus_D
-  dataset_index: 3
+  dataset_index: 0
   epochs: 300
   train_epoch_clip: 20
   batch_size: 8
