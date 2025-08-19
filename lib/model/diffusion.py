@@ -72,8 +72,8 @@ class Diffusion(nn.Module):
         )
 
         loss1 = (network_pred_eps - eps).square().sum(dim=[1, 2, 3])
-        # loss2 = (network_pred_x0 - x).square().sum(dim=[1, 2, 3])
-        loss = loss1 # + loss2
+        loss2 = (network_pred_x0 - x).square().sum(dim=[1, 2, 3])
+        loss = loss1 + loss2
 
         return loss
 
