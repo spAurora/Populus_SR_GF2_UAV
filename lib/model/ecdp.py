@@ -9,7 +9,7 @@ from .unet import UNet
 import numpy as np
 from PIL import Image
 import os
-from osgeo import gdal
+import gdal
 
 def write_img(out_path, im_proj, im_geotrans, im_data, datatype):
     """output img
@@ -54,6 +54,13 @@ class ECDP(ImageSizeMixin, nn.Module):
                 out_channels=2 * self.in_channels,
             )
         )
+        
+        self.vis_mode = False
+        self.vis_output_path = r'D:\OneDrive\paper\SCI-6-populus_GF2_UAV\0-pic\4-vis_step'
+        self.cnt = 0
+        self.target_cnt = 2    
+        if self.vis_mode:
+            self.diffusion.fast_mode=False
 
         # TODO: load pretrained rrdb
         # you should place the parameters of pretrained RRDBNet to the
@@ -120,13 +127,18 @@ class ECDP(ImageSizeMixin, nn.Module):
         x_copy = (x_copy.clamp(0, 1) * 255).round()
         x_copy = x_copy.detach().cpu().numpy().astype(np.uint8)
 
-        output_path = r'D:\github_respository\Populus_SR_GF2_UAV\results\20250409-152034-gupopulus_250409\vis'
-        os.makedirs(output_path, exist_ok=True)
+        os.makedirs(self.vis_output_path, exist_ok=True)
+
+        self.cnt+=1
 
         for i in range(x_copy.shape[0]):
             output_data = x_copy[i][0]
-            output_full_path = output_path + '/' + 'step_' + str(i) + '.tif'
+            output_full_path = self.vis_output_path + '/' + 'step_' + str(i) + '.tif'
             write_img(output_full_path, None, None, output_data, datatype=gdal.GDT_Byte)
+        
+        if self.cnt == self.target_cnt:
+            print('已输出可视化结果')
+            exit(-1)
             
 
     def _calculate_loss(self, x, *, cond):
@@ -165,7 +177,8 @@ class ECDP(ImageSizeMixin, nn.Module):
         
         # # 可视化
         # self.vis_cond(lr_feats)
-        # self.vis_tstep(x, scale, cond_scaled)
+        if self.vis_mode:
+            self.vis_tstep(x, scale, cond_scaled)
 
         if self.diffusion.use_ode:
             x = x[-1]

@@ -1,7 +1,7 @@
 model:
   type: ecdp
   input_channels: 3
-  sr_factor: 4
+  sr_factor: 2
 
   rrdb_num_blocks: 23
   rrdb_block_selection: [1, 8, 15, 22]
@@ -27,12 +27,12 @@ train:
 
   dataset: gupopulus_D
   dataset_index: 0
-  epochs: 500
+  epochs: 300
   batch_size: 8
   train_image_size: 40
   lr: 1.0e-4
   lr_decay_factor: 0.5
-  lr_decay_epochs: [100,200,300,400]
+  lr_decay_epochs: [100,150,200,250]
   lr_warmup_steps: 500
   clip_grad_value: 10
   param_running_avg: 1000

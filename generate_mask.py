@@ -9,8 +9,8 @@ Aerospace Information Research Institute, Chinese Academy of Sciences
 wanghaoyu191@mails.ucas.ac.cn
 """
 
-from osgeo import gdal
-from osgeo import ogr
+import gdal
+import ogr
 import fnmatch
 import os
 import sys

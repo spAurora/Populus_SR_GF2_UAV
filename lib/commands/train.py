@@ -7,7 +7,7 @@ from .utils import copy_code, start_train
 
 
 def make_name(name):
-    time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    time = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     return f"{time}-{name}"
 
 
