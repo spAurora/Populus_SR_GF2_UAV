@@ -1,7 +1,3 @@
-# ECDP
-Code for paper "Effcient Conditional Diffusion Model with Probability
-Flow Sampling for Image Super-resolution".
-
 ## Required packages
 ```
 pip install torch torchvision
@@ -13,7 +9,7 @@ Put datasets into data/..., for example, DIV2K dataset should be put in
 `data/div2k/{DIV2K_train_HR,DIV2K_valid_HR,DIV2K_valid_LR_bicubic}`.
 For more details, see code in `lib/datasets`.
 
-## Training ECDP
+## Training
 First, train the RRDB encoder:
 ```
 ./main.py train --config conf/rrdbnet-df2k.yaml experiment-name
@@ -40,7 +36,7 @@ Finetune the ECDP model using image quality loss:
 ./main.py train --config conf/ecdp-df2k-finetune.yaml experiment-name
 ```
 
-## Testing ECDP
+## Testing
 ```
 # Experiment name here should be those in results directory
 ./main.py test experiment-name --save-images
