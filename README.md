@@ -43,3 +43,10 @@ Finetune the ECDP model using image quality loss:
 ```
 
 The images are now in the results directory.
+
+
+## Predict demo dataset
+```
+https://pan.baidu.com/s/1BhbSFLays6hcONcgLFDh7w 
+
+password: 33yc
